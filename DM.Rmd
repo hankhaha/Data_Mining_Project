@@ -1,0 +1,57 @@
+---
+title: "R Notebook"
+output:
+  word_document: default
+  pdf_document: default
+  html_notebook: default
+---
+
+
+```{r}
+getwd()
+setwd("D:/GWU/Data Mining/Milestone")
+age<-read.csv("users.csv")
+age[age==""]<-NA
+music=age[,c(1,9:27)]
+music<- na.omit(music)
+summary(music[-1])
+```
+```{r}
+standard<-as.data.frame(scale(music[-1]))
+head(standard)
+summary(standard)
+```
+```{r}
+require(graphics)
+cl <- kmeans(standard, 3)
+summary(cl)
+cl$centers
+standard <- data.frame(standard, cl$cluster)
+```
+
+
+```{r}
+aggregate(standard[1:19],list(standard$cl.cluster),FUN=length)
+result<-aggregate(standard[1:19],list(standard$cl.cluster),FUN=mean)
+result
+```
+
+```{r}
+haha<-aggregate(standard[c(3,6,11,14,19)],list(standard$cl.cluster),FUN=mean)
+haha
+as.factor(haha$Group.1)
+```
+```{r}
+library(reshape2)
+result.melt<-melt(haha,id.vars = haha$Group.1,measure.vars = c(2:6))
+result.melt$Q3<-NULL
+result.melt$Q6<-NULL
+head(result.melt)
+```
+```{r}
+my_palette <- colorRampPalette(c("white", "yellow", "red"))(n = nrow(200))
+library(ggplot2)
+ggplot(result.melt, aes(x = Group.1, y =variable , fill = value)) + geom_tile() +
+  scale_fill_gradientn(colours = my_palette)
+```
+
